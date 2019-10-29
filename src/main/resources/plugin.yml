@@ -1,0 +1,7 @@
+name: PdlEvent
+version: ${project.version}
+main: nl.hpfxd.pdlevent.PdlEvent
+prefix: PdlEvent
+authors: [hpfxd]
+description: pdl event OwO UwU
+website: https://hpfxd.nl/
