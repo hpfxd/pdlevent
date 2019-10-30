@@ -9,8 +9,8 @@ import nl.hpfxd.pdlevent.util.Team;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.github.paperspigot.Title;
 
 import java.util.UUID;
 
@@ -19,18 +19,49 @@ import java.util.UUID;
 public class EventCommand extends BaseCommand {
     @Dependency private PdlEvent pdlEvent;
 
+    @Subcommand("reload")
+    public void reload() {
+        pdlEvent.reloadConfig();
+    }
+
     @Subcommand("game")
-    public class Game {
+    public class Game extends BaseCommand {
 
         @Subcommand("start")
         public void start(CommandSender s) {
             s.sendMessage("Game state set to MIDGAME");
             pdlEvent.getGameManager().setGameState(GameState.MIDGAME);
         }
+
+        @Subcommand("dragon")
+        public void dragon(Player player) {
+            pdlEvent.broadcast("The dragon has been spawned!");
+            player.getWorld().spawnEntity(player.getLocation(), EntityType.ENDER_DRAGON);
+        }
+
+        @Subcommand("respawn")
+        public void respawn(OnlinePlayer player) {
+            pdlEvent.getGameManager().getSpectators().put(player.getPlayer().getUniqueId(), 0);
+        }
+
+        @Subcommand("end")
+        public class End extends BaseCommand {
+            @Subcommand("unlock")
+            public void unlock() {
+                pdlEvent.setEndUnlocked(true);
+                pdlEvent.broadcast("The end is unlocked!");
+            }
+
+            @Subcommand("lock")
+            public void lock() {
+                pdlEvent.setEndUnlocked(false);
+                pdlEvent.broadcast("The end is locked!");
+            }
+        }
     }
 
     @Subcommand("teams")
-    public class Teams {
+    public class Teams extends BaseCommand {
 
         @Subcommand("list")
         @Default
@@ -61,16 +92,30 @@ public class EventCommand extends BaseCommand {
             if (currentTeam != null) {
                 currentTeam.removePlayer(player.getPlayer());
             }
-
             team.addPlayer(player.getPlayer());
-
-            s.sendMessage("");
+            player.getPlayer().getInventory().clear();
+            player.getPlayer().teleport(team.getSpawn());
+            s.sendMessage("Moved " + player.getPlayer().getName() + " to " + team.getColor() + team.getName());
         }
     }
 
-    @Subcommand("broadcast")
-    @CommandAlias("broadcast|bc")
-    public void broadcast(CommandSender s, String message) {
-        pdlEvent.broadcast(s.getName(), message);
+    @Subcommand("chat")
+    public class Chat extends BaseCommand {
+        @Subcommand("broadcast")
+        @CommandAlias("broadcast|bc")
+        public void broadcast(CommandSender s, String message) {
+            pdlEvent.broadcast(s.getName(), message);
+        }
+
+        @Subcommand("mute")
+        public void mute(CommandSender s) {
+            if (pdlEvent.isChatMuted()) {
+                pdlEvent.setChatMuted(false);
+                pdlEvent.broadcast(s.getName(), "Un-muted the chat.");
+            } else {
+                pdlEvent.setChatMuted(true);
+                pdlEvent.broadcast(s.getName(), "Muted the chat.");
+            }
+        }
     }
 }

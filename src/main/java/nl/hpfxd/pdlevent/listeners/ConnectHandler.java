@@ -4,6 +4,7 @@ import nl.hpfxd.pdlevent.GameManager;
 import nl.hpfxd.pdlevent.PdlEvent;
 import nl.hpfxd.pdlevent.util.GameState;
 import nl.hpfxd.pdlevent.util.Team;
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,7 +18,11 @@ public class ConnectHandler implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        if (gm.getGameState() == GameState.MIDGAME) {
+        if (gm.getGameState() == GameState.WAITING) {
+            player.teleport(pdlEvent.getSpawn());
+            player.getInventory().clear();
+            player.setGameMode(GameMode.ADVENTURE);
+        } else if (gm.getGameState() == GameState.MIDGAME) {
             if (gm.getOfflinePlayers().containsKey(player.getUniqueId())) {
                 Team team = gm.getOfflinePlayers().get(player.getUniqueId());
 

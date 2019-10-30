@@ -6,7 +6,7 @@
 
     <groupId>nl.hpfxd</groupId>
     <artifactId>PdlEvent</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
     <packaging>jar</packaging>
 
     <name>PdlEvent</name>
@@ -38,11 +38,16 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
-                    <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml</dependencyReducedPomLocation>
+                    <dependencyReducedPomLocation>${project.build.directory}/dependency-reduced-pom.xml
+                    </dependencyReducedPomLocation>
                     <relocations>
                         <relocation>
                             <pattern>co.aikar.commands</pattern>
-                            <shadedPattern>nl.hpfxd.nl.pdlevent.acf</shadedPattern> <!-- Replace this -->
+                            <shadedPattern>nl.hpfxd.pdlevent.libs.acf</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>me.missionary.board</pattern>
+                            <shadedPattern>nl.hpfxd.pdlevent.libs.board</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
@@ -99,6 +104,11 @@
             <groupId>co.aikar</groupId>
             <artifactId>acf-paper</artifactId>
             <version>0.5.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>me.missionary</groupId>
+            <artifactId>board</artifactId>
+            <version>1.1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>

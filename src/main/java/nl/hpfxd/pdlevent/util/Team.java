@@ -20,7 +20,7 @@ public class Team {
 
     public Team(String name, Location spawn, ChatColor color) {
         this.name = name;
-        this.spawn = spawn.add(0.5, 0, 0.5);
+        this.spawn = spawn.add(0.5, 1, 0.5);
         this.color = color;
     }
 
@@ -51,6 +51,16 @@ public class Team {
 
     public boolean isPlayerOnTeam(UUID uuid) {
         return players.contains(uuid);
+    }
+
+    public void sendMessage(String message) {
+        for (UUID uuid : players) {
+            Player player = pdlEvent.getServer().getPlayer(uuid);
+
+            if (player != null) {
+                player.sendMessage(message);
+            }
+        }
     }
 
     public static Team getPlayerTeam(Player player) {

@@ -5,21 +5,50 @@ import nl.hpfxd.pdlevent.util.GameState;
 import nl.hpfxd.pdlevent.util.Team;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.github.paperspigot.Title;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class GameManager {
     private PdlEvent pdlEvent = PdlEvent.getInstance();
+    private ConfigurationSection config = pdlEvent.getConfig().getConfigurationSection("game");
     @Getter private GameState gameState;
     @Getter private List<Team> teams = new ArrayList<>();
-    @Getter private List<UUID> spectators = new ArrayList<>();
+    @Getter
+    private Map<UUID, Integer> spectators = new ConcurrentHashMap<>();
     @Getter private Map<UUID, Team> offlinePlayers = new HashMap<>();
 
-    public void init() {
+    void init() {
         gameState = GameState.WAITING;
         this.initTeams();
+
+        // game loop, runs every tick
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (UUID uuid : spectators.keySet()) {
+                    Player player = pdlEvent.getServer().getPlayer(uuid);
+
+                    if (player != null) {
+                        int time = spectators.get(uuid);
+
+                        if (time == 0) {
+                            spectators.remove(uuid);
+                            player.setGameMode(GameMode.SURVIVAL);
+                            player.teleport(Team.getPlayerTeam(player).getSpawn());
+                        } else {
+                            spectators.put(uuid, time - 1);
+                        }
+                    } else {
+                        spectators.remove(uuid);
+                    }
+                }
+            }
+        }.runTaskTimer(pdlEvent, 0, 1);
     }
 
     private void initTeams() {
@@ -41,6 +70,8 @@ public class GameManager {
                 team.addPlayer(player);
             }
 
+            pdlEvent.getWorld().getWorldBorder().setSize(4001);
+
             for (Team team : teams) {
                 for (UUID uuid : team.getPlayers()) {
                     Player player = pdlEvent.getServer().getPlayer(uuid);
@@ -56,7 +87,7 @@ public class GameManager {
 
     public void addPlayerSpectator(Player player) {
         player.setGameMode(GameMode.SPECTATOR);
-        spectators.add(player.getUniqueId());
+        spectators.put(player.getUniqueId(), config.getInt("respawnTime")); // 2 minutes
     }
 
     public void addSpectator(Player player) {
