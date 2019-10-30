@@ -53,6 +53,6 @@ public class MessageCommand extends BaseCommand {
         from.sendMessage(msg);
         to.sendMessage(msg);
 
-        to.playSound(to.getLocation(), Sound.ARROW_HIT, 1, 1);
+        to.playSound(to.getLocation(), Sound.BURP, 1, 1);
     }
 }

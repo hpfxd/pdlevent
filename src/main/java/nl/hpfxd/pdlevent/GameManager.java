@@ -77,6 +77,7 @@ public class GameManager {
                     Player player = pdlEvent.getServer().getPlayer(uuid);
 
                     if (player != null) {
+                        player.setGameMode(GameMode.SURVIVAL);
                         player.teleport(team.getSpawn());
                     }
                 }
